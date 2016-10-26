@@ -19,7 +19,7 @@ class ConsoleDisplay {
   		    case c:LifeCell if c.age==2 => gr.setForegroundColor(TextColor.ANSI.MAGENTA)
   		    case _ => gr.setForegroundColor(TextColor.ANSI.BLACK)
   		  }
-  		  if (cell.alive) gr.putString(col, row, "*")
+  		  if (cell.alive) gr.putString(col, row, "O")
   		}
   		screen.refresh()
 		}
