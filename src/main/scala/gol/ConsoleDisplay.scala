@@ -15,13 +15,17 @@ class ConsoleDisplay {
   		screen.clear()  		
   		gol.board.foreach{ case (row,col,cell) =>
   		  gr.setForegroundColor(TextColor.ANSI.RED)
-  		  gr.putString(1, 1, "gen#"+gol.gen)
-  		  cell match {
-  		    case c:LifeCell if c.age==1 => gr.setForegroundColor(TextColor.ANSI.GREEN)
-  		    case c:LifeCell if c.age==2 => gr.setForegroundColor(TextColor.ANSI.MAGENTA)
-  		    case _ => gr.setForegroundColor(TextColor.ANSI.BLACK)
+  		  gr.putString(0, 0, "gen#"+gol.gen)
+  		  val color = cell match {
+  		    case c:LifeCell if c.age==0 => TextColor.ANSI.YELLOW
+  		    case c:LifeCell if c.age==1 => TextColor.ANSI.GREEN
+  		    case c:LifeCell if c.age==2 => TextColor.ANSI.MAGENTA
+  		    case _ => TextColor.ANSI.BLACK
   		  }
-  		  if (cell.alive) gr.putString(col, row, "O")
+  		  if (cell.alive) {
+  		    gr.setForegroundColor(color)
+  		    gr.putString(col, row, "O")
+  		  }
   		}
   		screen.refresh()
 		}
