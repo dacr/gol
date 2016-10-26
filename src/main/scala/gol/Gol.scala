@@ -107,7 +107,7 @@ object Gol {
     val display = new ConsoleDisplay
     (gol:GameOfLife) => {
       display.drawGol(gol)
-      Thread.sleep(1000L)
+      Thread.sleep(100L)
     }
   }
   
@@ -123,6 +123,6 @@ object Gol {
   def main(args:Array[String]) {
     val gol = GameOfLife.frog()
     //loopOverGen(gol, 5,stdoutDisplay)
-    loopOverGen(gol, 60,consoleDisplay)
+    loopOverGen(gol, 500,consoleDisplay)
   }
 }

@@ -14,6 +14,8 @@ class ConsoleDisplay {
 		def drawGol(gol:GameOfLife) {
   		screen.clear()  		
   		gol.board.foreach{ case (row,col,cell) =>
+  		  gr.setForegroundColor(TextColor.ANSI.RED)
+  		  gr.putString(1, 1, "gen#"+gol.gen)
   		  cell match {
   		    case c:LifeCell if c.age==1 => gr.setForegroundColor(TextColor.ANSI.GREEN)
   		    case c:LifeCell if c.age==2 => gr.setForegroundColor(TextColor.ANSI.MAGENTA)
