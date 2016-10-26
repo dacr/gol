@@ -43,6 +43,10 @@ case class Board(cells:IndexedSeq[IndexedSeq[Cell]]) {
         for {col <- 0 until cols} yield proc(row,col)
     Board(newone)
   }
+  def foreach(proc:(Int,Int,Cell)=>Unit) {
+      for { row <- 0 until rows } 
+        for {col <- 0 until cols}  proc(row,col,this(row,col))
+  }
   def apply(row:Int,col:Int) = cells(row)(col)
 }
 
@@ -89,13 +93,21 @@ object GameOfLife {
 
 object Gol {
   
-  def display(gol:GameOfLife) = {
+  def stdoutDisplay(gol:GameOfLife) = {
     import gol._
     for { row <- 0 until board.rows } {
       for { col <- 0 until board.cols } {
         if (board(row, col).alive) print('O') else print('_')
       }
       println()
+    }
+  }
+  
+  val consoleDisplay = {
+    val display = new ConsoleDisplay
+    (gol:GameOfLife) => {
+      display.drawGol(gol)
+      Thread.sleep(1000L)
     }
   }
   
@@ -110,6 +122,7 @@ object Gol {
   
   def main(args:Array[String]) {
     val gol = GameOfLife.frog()
-    loopOverGen(gol, 5,display)
+    //loopOverGen(gol, 5,stdoutDisplay)
+    loopOverGen(gol, 60,consoleDisplay)
   }
 }
