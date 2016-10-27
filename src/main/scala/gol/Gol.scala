@@ -25,6 +25,9 @@ case class LifeCell(age:Int=0) extends Cell {
 case class DeadCell(since:Int=0) extends Cell {
   val alive=false
 }
+
+// --------------------------------------------------------------------------------------
+
 case class Board(cells:IndexedSeq[IndexedSeq[Cell]]) {  
   val rows = cells.size
   val cols = cells.head.size
@@ -37,10 +40,10 @@ case class Board(cells:IndexedSeq[IndexedSeq[Cell]]) {
       if r!=row || c!=col
     } yield cells(r)(c)
   }
-  def map(proc:(Int,Int)=>Cell):Board = {
+  def map(proc:(Int,Int,Cell)=>Cell):Board = {
     val newone = 
       for { row <- 0 until rows } yield
-        for {col <- 0 until cols} yield proc(row,col)
+        for {col <- 0 until cols} yield proc(row,col,this(row,col))
     Board(newone)
   }
   def foreach(proc:(Int,Int,Cell)=>Unit) {
@@ -51,18 +54,19 @@ case class Board(cells:IndexedSeq[IndexedSeq[Cell]]) {
 }
 
 object Board {
-  def filled(rows:Int, cols:Int, filler:(Int,Int)=>Cell):Board = {
+  def fill(rows:Int, cols:Int, filler:(Int,Int)=>Cell):Board = {
      val cells = 
        for { row <- 0 until rows } yield
          for {col <- 0 until cols} yield filler(row,col)
      Board(cells)
   }
-  def empty(rows:Int, cols:Int):Board = filled(rows, cols, (_, _) => DeadCell())
+  def empty(rows:Int, cols:Int):Board = fill(rows, cols, (_, _) => DeadCell())
 }
 
-case class GameOfLife(board:Board, gen:Int) {
-  def nextCell(row:Int, col:Int):Cell = {
-    val cell = board(row,col)
+// --------------------------------------------------------------------------------------
+
+case class GameOfLife(board:Board, gen:Int=0) {
+  def nextCell(row:Int, col:Int, cell:Cell):Cell = {
     val aliveCount=board.neighbors(row,col).filter(_.alive).size
     (aliveCount,cell) match {
       case (3,   c:DeadCell) => LifeCell()
@@ -74,24 +78,90 @@ case class GameOfLife(board:Board, gen:Int) {
   }
   def nextgen():GameOfLife =
     new GameOfLife(board.map(nextCell), gen+1)
+  
+  def add(row:Int, col:Int, patbasestr:String):GameOfLife = {
+    val patbase = for {
+      (line,row) <- patbasestr.split("\n").toList.zipWithIndex
+      (ch, col) <- line.zipWithIndex
+      if (ch!=' ')
+    } yield (row,col)
+    add(row,col,patbase)
+  }
+  def add(row:Int, col:Int, patbase:List[Tuple2[Int,Int]]):GameOfLife = {
+    val pat = patbase.map{case(r,c) => (r+row, c+col)}    
+    def frogFiller(r:Int, c:Int):Cell = if (pat.contains( (r,c) )) LifeCell() else DeadCell()
+    val newboard = board.map{ (r,c,cell) =>
+      if (pat.contains( (r,c) )) LifeCell() else cell
+    }
+    GameOfLife(newboard,gen)
+  }
 }
 
 object GameOfLife {
-  def apply(rows:Int, cols:Int, filler:(Int,Int)=>Cell):GameOfLife = {
-    val board = Board.filled(rows,cols,filler)
-    new GameOfLife(board, 0)
-  }
-  
-  def frog():GameOfLife = {
-    val patbase = (1, 0)::(0, 3)::(1, 1)::(1, 2)::(0, 1)::(0, 2)::Nil
-    val pat = patbase.map{case(r,c) => (r+5, c+5)}
-    def frogFiller(r:Int, c:Int):Cell = if (pat.contains( (r,c) )) LifeCell() else DeadCell()
-    GameOfLife(20,20,frogFiller)
-  }
+  def apply(rows:Int, cols:Int):GameOfLife = new GameOfLife(Board.empty(rows,cols))  
 }
 
 
+// --------------------------------------------------------------------------------------
+
 object Gol {
+    
+  val blinker = 
+    """xxx"""
+  
+  val toad    = 
+    """ xxx
+      |xxx
+      |""".stripMargin
+      
+  val beacon  = 
+    """xx
+      |xx
+      |  xx
+      |  xx
+      |""".stripMargin
+      
+  val glider =
+    """ x
+      |  x
+      |xxx
+      |""".stripMargin
+      
+  val pentadecathlon =
+    """  xxx   xxx
+      |
+      |x    x x    x
+      |x    x x    x
+      |x    x x    x
+      |  xxx   xxx
+      |            
+      |  xxx   xxx
+      |x    x x    x
+      |x    x x    x
+      |x    x x    x
+      |
+      |  xxx   xxx
+      |""".stripMargin
+
+  val simple2complex = 
+    """xxx
+      |
+      | x
+      |
+      |xxx
+      |""".stripMargin
+      
+  val ship = 
+    """x  x
+      |    x
+      |x   x
+      | xxxx
+      |""".stripMargin
+  
+  val snake =
+    """x xx
+      |xx x
+      |""".stripMargin
   
   def stdoutDisplay(gol:GameOfLife) = {
     import gol._
@@ -107,7 +177,7 @@ object Gol {
     val display = new ConsoleDisplay
     (gol:GameOfLife) => {
       display.drawGol(gol)
-      Thread.sleep(100L)
+      Thread.sleep(250L)
     }
   }
   
@@ -121,8 +191,18 @@ object Gol {
   }
   
   def main(args:Array[String]) {
-    val gol = GameOfLife.frog()
+    val gol =
+      GameOfLife(40,120)
+        .add(5,10,  blinker)
+        .add(5,20,  toad)
+        .add(5,30,  beacon)
+        .add(5,40,  pentadecathlon)
+        .add(10,70, simple2complex)
+        .add(10,1,  glider)
+        .add(15,10, ship)
+        .add(20,5,  snake)
+
     //loopOverGen(gol, 5,stdoutDisplay)
-    loopOverGen(gol, 500,consoleDisplay)
+    loopOverGen(gol, 200,consoleDisplay)
   }
 }
