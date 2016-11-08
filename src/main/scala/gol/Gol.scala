@@ -201,6 +201,7 @@ object Gol {
         .add(10,1,  glider)
         .add(15,10, ship)
         .add(20,6,  snake)
+        .add(20,15, snake)
 
     //loopOverGen(gol, 5,stdoutDisplay)
     loopOverGen(gol, 200,consoleDisplay)
