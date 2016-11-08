@@ -200,7 +200,7 @@ object Gol {
         .add(10,70, simple2complex)
         .add(10,1,  glider)
         .add(15,10, ship)
-        .add(20,5,  snake)
+        .add(20,6,  snake)
 
     //loopOverGen(gol, 5,stdoutDisplay)
     loopOverGen(gol, 200,consoleDisplay)
