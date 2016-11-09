@@ -21,11 +21,38 @@ import Matchers._
 
 class GolTest extends FunSuite  {
   
-  test("board tests") {
+  test("board basic test") {
     val board = Board.empty(11,10)
     board.rows should equal(11)
     board.cols should equal(10)
     board.neighbors(4, 4) should have size(8)
+  }
+  
+  test("blinker test") {
+    import GolPatterns._
+    val gen0 = GameOfLife(3,3).add(1, 0, blinker)
+    val gen1 = gen0.nextgen()
+    val gen2 = gen1.nextgen()
+    gen1.board.toString should equal(
+      """ x
+        | x
+        | x""".stripMargin
+    )
+    gen2.board.toString should equal(gen0.board.toString)
+  }
+  
+  test("toad test") {
+    import GolPatterns._
+    val gen0 = GameOfLife(4,4).add(1, 0, toad)
+    val gen1 = gen0.nextgen()
+    val gen2 = gen1.nextgen()
+    gen1.board.toString should equal(
+      """  x
+        |x  x
+        |x  x
+        | x""".stripMargin
+    )
+    gen2.board.toString should equal(gen0.board.toString)
   }
   
 }

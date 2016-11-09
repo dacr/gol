@@ -51,6 +51,16 @@ case class Board(cells:IndexedSeq[IndexedSeq[Cell]]) {
         for {col <- 0 until cols}  proc(row,col,this(row,col))
   }
   def apply(row:Int,col:Int) = cells(row)(col)
+  override def toString() = {
+    val content = 
+      for { row <- 0 until rows } yield
+        for {col <- 0 until cols} yield cells(row)(col) match {
+          case _:LifeCell => "x"
+          case _:DeadCell => " "
+        }
+    def row2str(chs:IndexedSeq[String]) = chs.mkString("").replaceAll("\\s+$", "") 
+    content.map{row2str}.mkString("\n")    
+  }
 }
 
 object Board {
@@ -104,8 +114,7 @@ object GameOfLife {
 
 // --------------------------------------------------------------------------------------
 
-object Gol {
-    
+object GolPatterns {
   val blinker = 
     """xxx"""
   
@@ -162,6 +171,12 @@ object Gol {
     """x xx
       |xx x
       |""".stripMargin
+    
+}
+
+// --------------------------------------------------------------------------------------
+
+object Gol {
   
   def stdoutDisplay(gol:GameOfLife) = {
     import gol._
@@ -191,6 +206,7 @@ object Gol {
   }
   
   def main(args:Array[String]) {
+    import GolPatterns._
     val gol =
       GameOfLife(40,120)
         .add(5,10,  blinker)

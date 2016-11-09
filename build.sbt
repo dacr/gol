@@ -2,6 +2,7 @@ name := "gol"
 
 version := "0.0.2-SNAPSHOT"
 
+//scalaVersion := "2.12.0"
 scalaVersion := "2.11.8"
 
 scalacOptions ++= Seq("-unchecked", "-deprecation" , "-feature", "-language:implicitConversions")
